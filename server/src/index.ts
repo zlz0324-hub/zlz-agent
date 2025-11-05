@@ -143,6 +143,9 @@ wss.on('connection', (ws: WebSocket) => {
         case MessageType.SYNC_STATE:
           handleSyncState(client, message.data);
           break;
+        case 'chat_message':
+          handleChatMessage(client, message.data);
+          break;
       }
     } catch (error) {
       console.error('消息解析错误:', error);
@@ -454,6 +457,31 @@ function handleSyncState(client: ClientConnection, data: { state: any }): void {
     // 记录状态一致
     stateConsistencyChecker.recordConsistentState(client.playerId);
   }
+}
+
+// 处理聊天消息
+function handleChatMessage(client: ClientConnection, data: { text: string, roomId: string, playerId: string, timestamp: number }): void {
+  const { text, roomId, playerId } = data;
+  
+  // 获取房间和玩家信息
+  const room = roomManager.getRoomById(roomId);
+  if (!room) return;
+  
+  const player = room.players.get(playerId);
+  if (!player) return;
+  
+  // 构建聊天消息
+  const chatMessage = {
+    type: 'chat_message',
+    data: {
+      playerName: player.name,
+      text,
+      timestamp: Date.now()
+    }
+  };
+  
+  // 广播消息给房间内所有玩家
+  broadcastToRoom(roomId, chatMessage);
 }
 
 // 处理断开连接
