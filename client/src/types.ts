@@ -59,7 +59,7 @@ export enum WSMessageType {
 }
 
 export interface WSMessage<T = any> {
-  type: WSMessageType;
+  type: WSMessageType | string; // 允许使用枚举或字符串字面量
   data: T;
   timestamp?: number;
   priority?: number;

@@ -20,7 +20,7 @@ export class WebSocketClient {
   private reconnectAttempts = 0;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private heartbeatTimer: ReturnType<typeof setTimeout> | null = null;
-  private messageHandlers: Map<WSMessageType | 'any', Set<MessageHandler>> = new Map();
+  private messageHandlers: Map<WSMessageType | string | 'any', Set<MessageHandler>> = new Map();
   private isConnecting = false;
   private isConnected = false;
   private messageQueue: WSMessage<any>[] = [];
@@ -138,7 +138,7 @@ export class WebSocketClient {
   }
 
   // 注册消息处理器
-  on<T extends WSMessageType>(type: T | 'any', handler: MessageHandler): void {
+  on<T extends WSMessageType | string>(type: T | 'any', handler: MessageHandler): void {
     if (!this.messageHandlers.has(type)) {
       this.messageHandlers.set(type, new Set());
     }
@@ -146,7 +146,7 @@ export class WebSocketClient {
   }
 
   // 移除消息处理器
-  off<T extends WSMessageType>(type: T | 'any', handler: MessageHandler): void {
+  off<T extends WSMessageType | string>(type: T | 'any', handler: MessageHandler): void {
     const handlers = this.messageHandlers.get(type);
     if (handlers) {
       handlers.delete(handler);
